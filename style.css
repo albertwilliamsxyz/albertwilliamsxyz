@@ -19,7 +19,7 @@
 
 body {
 	font-family: 'Playfair Display', serif;
-	background-color: var(--background-color-primary);
+	background-color: #F8F8F8;
 	color: var(--font-color-primary);
 }
 
