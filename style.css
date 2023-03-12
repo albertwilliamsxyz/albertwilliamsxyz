@@ -21,6 +21,8 @@ body {
 	font-family: 'Playfair Display', serif;
 	background-color: var(--background-color-primary);
 	color: var(--font-color-primary);
+	transform: rotate(2deg);
+	margin: 50px;
 }
 
 ul {
