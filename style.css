@@ -31,6 +31,10 @@ a {
 	color: var(--font-color-primary);
 }
 
+a.active {
+	text-decoration: none;
+}
+
 .root {
 	display: flex;
 	flex-direction: column;
