@@ -1,0 +1,13 @@
+body {
+	margin: 50px;
+	background-image: url('./wood.jpg');
+	transform: rotate(-1.5deg);
+}
+
+.root {
+	box-shadow: 0 0 50px #303030;
+	border-radius: 2px;
+	background: var(--background-color-primary);
+	background: radial-gradient(circle, #FAFAFA 0%, #EEEEEE 100%); 
+	
+}
