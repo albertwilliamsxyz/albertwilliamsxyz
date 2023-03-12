@@ -10,6 +10,11 @@
 	--font-color-primary: #161616;
 	--background-color-primary: #FAFAFA; 
 	--shadow-color: #E2E2E2;
+	--yellow-marker: #E4FC5B;
+}
+
+::selection {
+	background-color: var(--yellow-marker);
 }
 
 body {
@@ -20,6 +25,10 @@ body {
 
 ul {
 	list-style: none;
+}
+
+a {
+	color: var(--font-color-primary);
 }
 
 .root {
@@ -49,12 +58,29 @@ ul {
 .header .title {
 	font-size: 3.5em;
 	font-weight: bold;
-	margin-bottom: 10px;
+}
+
+.header > * {
+	margin-bottom: 20px;
+}
+
+.header > *:last-child {
+	margin-bottom: 0;
+}
+
+.header .navigation ul li {
+	display: inline;
+	border-right: 1px solid var(--shadow-color);
+	padding: 0 40px;
+}
+
+.header .navigation ul li:last-child {
+	border-right: none;
 }
 
 .main {
 	flex-grow: 1;
-	padding: 40px 0;
+	padding: 0;
 }
 
 .main .article {
@@ -62,19 +88,18 @@ ul {
 	border-bottom: 1px solid var(--shadow-color);
 }
 
-.main .article:first-child {
-	padding-top: 0;
-}
-
 .main .article:last-child {
 	border: none
 }
 
-.article .article-title {
-	font-size: 3em;
-	font-weight: bold;
+.article .article-header {
 	text-align: center;
-	margin-bottom: 40px;
+	margin-bottom: 20px;
+}
+
+.article .article-header .title {
+	font-size: 2.5em;
+	font-weight: bold;
 }
 
 .article .article-content {
