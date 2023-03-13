@@ -1,0 +1,50 @@
+@media screen and (max-width: 1000px) {
+	:root {
+		--padding-size: 20px;
+	}
+
+	body {
+		margin: 0;
+		background: none;
+		transform: rotate(0);
+	}
+
+	.root {
+		width: 100vw;
+		box-shadow: none;
+		border-radius: 0;
+		background: var(--background-color-primary);
+	}
+
+	.header .title {
+		font-size: 2em;
+	}
+
+	.header .navigation ul li {
+		display: block;
+		border-right: none;
+		padding: calc(var(--padding-size) / 2) 0;
+		border-bottom: 1px solid var(--shadow-color);
+	}
+
+	.article .article-header .title {
+		font-size: 2em;
+	}
+
+	.article .article-content h1 {
+		font-size: 1.8em;
+	}
+
+	.paper-stack {
+		margin: 0;
+		transform: rotate(0);
+	}
+
+	.root::before, .root::after {
+		display: none;
+	}
+
+	.highlight-container::before {
+		display: none;
+	}
+}

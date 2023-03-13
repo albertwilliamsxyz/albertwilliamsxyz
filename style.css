@@ -11,6 +11,9 @@
 	--background-color-primary: #FAFAFA; 
 	--shadow-color: #E2E2E2;
 	--yellow-marker: #E4FC5B;
+	--padding-size: 40px;
+	--transform-duration: 1s;
+	--border-radius: 4px;
 }
 
 ::selection {
@@ -23,8 +26,8 @@ body {
 	color: var(--font-color-primary);
 }
 
-ul {
-	list-style: none;
+ul, ol {
+	list-style-position: inside;
 }
 
 a {
@@ -38,13 +41,13 @@ a {
 	width: 80vw;
 	min-height: 100vh;
 	margin: auto;
-	padding: 0 40px;
+	padding: 0 var(--padding-size);
 	box-shadow: 0 0 50px var(--shadow-color);
 }
 
 .root > * {
 	border-bottom: 1px solid var(--shadow-color);
-	padding: 40px;
+	padding: var(--padding-size);
 }
 
 .root > *:last-child {
@@ -61,7 +64,7 @@ a {
 }
 
 .header > * {
-	margin-bottom: 20px;
+	margin-bottom: calc(var(--padding-size) / 2);
 }
 
 .header > *:last-child {
@@ -71,11 +74,11 @@ a {
 .header .navigation ul li {
 	display: inline;
 	border-right: 1px solid var(--shadow-color);
-	padding: 0 40px;
+	padding: 0 var(--padding-size);
 }
 
 .header .navigation ul li:last-child {
-	border-right: none;
+	border: none;
 }
 
 .main {
@@ -84,7 +87,7 @@ a {
 }
 
 .main .article {
-	padding: 40px 0;
+	padding: var(--padding-size) 0;
 	border-bottom: 1px solid var(--shadow-color);
 }
 
@@ -94,7 +97,7 @@ a {
 
 .article .article-header {
 	text-align: center;
-	margin-bottom: 20px;
+	margin-bottom: calc(var(--padding-size) / 2);
 }
 
 .article .article-header .title {
@@ -104,7 +107,7 @@ a {
 
 .article .article-content {
 	text-align: justify;
-	padding: 0 40px;
+	padding: 0 var(--padding-size);
 }
 
 .article-content > * {
