@@ -121,3 +121,11 @@ a {
 .footer {
 	text-align: center;
 }
+
+/* Markdown */
+
+.article-content hr {
+	border: none;
+	margin: 40px 0;
+	border-bottom: 1px solid var(--shadow-color);
+}
