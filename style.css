@@ -9,6 +9,7 @@
 :root {
 	--font-color-primary: #161616;
 	--background-color-primary: #FAFAFA; 
+	--background-color-code: #F2F2F2;
 	--shadow-color: #E2E2E2;
 	--yellow-marker: #E4FC5B;
 	--padding-size: 40px;
@@ -128,4 +129,19 @@ a {
 	border: none;
 	margin: 40px 0;
 	border-bottom: 1px solid var(--shadow-color);
+}
+
+.article-content pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+	line-height: 20px;
+	padding: 10px;
+	border-radius: var(--border-radius);
+	background-color: var(--background-color-code);
+}
+
+.article-content code {
+	padding: 4px;
+	background-color: var(--background-color-code);
+	border-radius: var(--border-radius);
 }
