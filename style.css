@@ -9,7 +9,7 @@
 :root {
 	--font-color-primary: #161616;
 	--background-color-primary: #FAFAFA; 
-	--background-color-code: #F2F2F2;
+	--background-color-code: #F6F6F6;
 	--shadow-color: #E2E2E2;
 	--yellow-marker: #E4FC5B;
 	--padding-size: 40px;
@@ -132,16 +132,23 @@ a {
 }
 
 .article-content pre {
+	padding: 10px;
   white-space: pre-wrap;
   word-wrap: break-word;
-	line-height: 20px;
-	padding: 10px;
+	border: 1px solid var(--shadow-color);
 	border-radius: var(--border-radius);
 	background-color: var(--background-color-code);
 }
 
 .article-content code {
 	padding: 4px;
-	background-color: var(--background-color-code);
+	line-height: 30px;
+	border: 1px solid var(--shadow-color);
 	border-radius: var(--border-radius);
+	background-color: var(--background-color-code);
+}
+
+.article-content pre code {
+	border: none;
+	line-height: 25px;
 }
