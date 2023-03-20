@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<link rel="stylesheet" href="../style.css" media="all">
+	<link rel="stylesheet" href="responsiveness.css" media="all">
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+</head>
+<body>
+	<div class="root">
+		<div class="header">
+			<div class="title">Albert J. Williams' Blog</div>
+			<div class="subtitle">Mathematics, Computer Science, Software Development and more</div>
+			<div class="navigation">
+				<ul><li><a href="../index.html">Blog posts</a></li><li><a href="../about.html">About Me</a></li></ul>
+			</div>
+		</div>
+		<div class="main">
+			<div class="article">
+				<div class="article-header">
+					<div class="title">JQ: JSON Query Language</div>
+					<div class="date">March 18th, 2023</div>
+				</div>
+				<div class="article-content">
+<p>Today I want to start a series of articles on domain specific languages, and I want to dedicate my first article in the series talking about a CLI utility that I find pretty useful when dealing with data serialized as JSON, <code>jq</code>.</p>
+<p>This utility is both a CLI JSON processor and a domain-specific language available for a variety of Operating Systems, such as GNU/Linux, Mac OS and even Windows. The reason why it is useful is because it lets you apply transformations on data with a language that is easy-to-use but at the same time extremely powerful and designed specifically for that purpose, and since it is a CLI utility, you can pipe it with different programs to build a pipeline with the ability to process JSON objects on the fly.</p>
+<p>I think that the best way to visualize how useful it is and learn a little about it is through a little example.</p>
+<p>Let’s assume that you have a REST API that exposes information about books, and that it has an endpoint to list all the books that have been stored, it is important to mention, for the sake of the argument, that this endpoint does not have any mechanism to filter records or change the representation, we get a snapshot containing exactly all the books that are currently available, but the way in which we are going to filter the information is up to us.</p>
+<p>Continuing with our assumption, once we make a request against it we get <a href="https://gist.githubusercontent.com/albertwilliamsxyz/9e59448dfb35dc6d7036cb8e1143b5ed/raw/03d7da570b2e335449543e044a8c486812a880d0/books.json">this</a> as a response. As you can see, it is hard to visualize due to its size, but now we have something to work with.</p>
+<p>I highly recommend using curl to read it, since we can store it in a file to avoid downloading it for each call to <code>jq</code> and it is extremely easy to use:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="va">$curl</span> <span class="ex">https</span>://gist.githubusercontent.com/albertwilliamsxyz/9e59448dfb35dc6d7036cb8e1143b5ed/raw/03d7da570b2e335449543e044a8c486812a880d0/books.json -O</a></code></pre></div>
+<p>Once we have our file, the first thing we want to do is to pretty-print it so that it is easier for us to know what is going on, that can be achieved with the identity filter, denoted by a dot.</p>
+<p>So, starting with something like this (I’ll be working with a sliced version of the object to avoid having an extremely large output):</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb2-1" title="1"><span class="ot">[</span><span class="fu">{</span><span class="dt">&quot;author&quot;</span><span class="fu">:</span><span class="st">&quot;Charles Dickens&quot;</span><span class="fu">,</span><span class="dt">&quot;country&quot;</span><span class="fu">:</span><span class="st">&quot;United Kingdom&quot;</span><span class="fu">,</span><span class="dt">&quot;imageLink&quot;</span><span class="fu">:</span><span class="st">&quot;images/great-expectations.jpg&quot;</span><span class="fu">,</span><span class="dt">&quot;language&quot;</span><span class="fu">:</span><span class="st">&quot;English&quot;</span><span class="fu">,</span><span class="dt">&quot;link&quot;</span><span class="fu">:</span><span class="st">&quot;https://en.wikipedia.org/wiki/Great_Expectations</span><span class="ch">\n</span><span class="st">&quot;</span><span class="fu">,</span><span class="dt">&quot;pages&quot;</span><span class="fu">:</span><span class="dv">194</span><span class="fu">,</span><span class="dt">&quot;title&quot;</span><span class="fu">:</span><span class="st">&quot;Great Expectations&quot;</span><span class="fu">,</span><span class="dt">&quot;year&quot;</span><span class="fu">:</span><span class="dv">1861</span><span class="fu">}</span><span class="ot">,</span><span class="fu">{</span><span class="dt">&quot;author&quot;</span><span class="fu">:</span><span class="st">&quot;Denis Diderot&quot;</span><span class="fu">,</span><span class="dt">&quot;country&quot;</span><span class="fu">:</span><span class="st">&quot;France&quot;</span><span class="fu">,</span><span class="dt">&quot;imageLink&quot;</span><span class="fu">:</span><span class="st">&quot;images/jacques-the-fatalist.jpg&quot;</span><span class="fu">,</span><span class="dt">&quot;language&quot;</span><span class="fu">:</span><span class="st">&quot;French&quot;</span><span class="fu">,</span><span class="dt">&quot;link&quot;</span><span class="fu">:</span><span class="st">&quot;https://en.wikipedia.org/wiki/Jacques_the_Fatalist</span><span class="ch">\n</span><span class="st">&quot;</span><span class="fu">,</span><span class="dt">&quot;pages&quot;</span><span class="fu">:</span><span class="dv">596</span><span class="fu">,</span><span class="dt">&quot;title&quot;</span><span class="fu">:</span><span class="st">&quot;Jacques the Fatalist&quot;</span><span class="fu">,</span><span class="dt">&quot;year&quot;</span><span class="fu">:</span><span class="dv">1796</span><span class="fu">}</span><span class="ot">,</span><span class="fu">{</span><span class="dt">&quot;author&quot;</span><span class="fu">:</span><span class="st">&quot;Alfred Döblin&quot;</span><span class="fu">,</span><span class="dt">&quot;country&quot;</span><span class="fu">:</span><span class="st">&quot;Germany&quot;</span><span class="fu">,</span><span class="dt">&quot;imageLink&quot;</span><span class="fu">:</span><span class="st">&quot;images/berlin-alexanderplatz.jpg&quot;</span><span class="fu">,</span><span class="dt">&quot;language&quot;</span><span class="fu">:</span><span class="st">&quot;German&quot;</span><span class="fu">,</span><span class="dt">&quot;link&quot;</span><span class="fu">:</span><span class="st">&quot;https://en.wikipedia.org/wiki/Berlin_Alexanderplatz</span><span class="ch">\n</span><span class="st">&quot;</span><span class="fu">,</span><span class="dt">&quot;pages&quot;</span><span class="fu">:</span><span class="dv">600</span><span class="fu">,</span><span class="dt">&quot;title&quot;</span><span class="fu">:</span><span class="st">&quot;Berlin Alexanderplatz&quot;</span><span class="fu">,</span><span class="dt">&quot;year&quot;</span><span class="fu">:</span><span class="dv">1929</span><span class="fu">}</span><span class="ot">,</span><span class="fu">{</span><span class="dt">&quot;author&quot;</span><span class="fu">:</span><span class="st">&quot;Fyodor Dostoevsky&quot;</span><span class="fu">,</span><span class="dt">&quot;country&quot;</span><span class="fu">:</span><span class="st">&quot;Russia&quot;</span><span class="fu">,</span><span class="dt">&quot;imageLink&quot;</span><span class="fu">:</span><span class="st">&quot;images/crime-and-punishment.jpg&quot;</span><span class="fu">,</span><span class="dt">&quot;language&quot;</span><span class="fu">:</span><span class="st">&quot;Russian&quot;</span><span class="fu">,</span><span class="dt">&quot;link&quot;</span><span class="fu">:</span><span class="st">&quot;https://en.wikipedia.org/wiki/Crime_and_Punishment</span><span class="ch">\n</span><span class="st">&quot;</span><span class="fu">,</span><span class="dt">&quot;pages&quot;</span><span class="fu">:</span><span class="dv">551</span><span class="fu">,</span><span class="dt">&quot;title&quot;</span><span class="fu">:</span><span class="st">&quot;Crime and Punishment&quot;</span><span class="fu">,</span><span class="dt">&quot;year&quot;</span><span class="fu">:</span><span class="dv">1866</span><span class="fu">}</span><span class="ot">,</span><span class="fu">{</span><span class="dt">&quot;author&quot;</span><span class="fu">:</span><span class="st">&quot;Fyodor Dostoevsky&quot;</span><span class="fu">,</span><span class="dt">&quot;country&quot;</span><span class="fu">:</span><span class="st">&quot;Russia&quot;</span><span class="fu">,</span><span class="dt">&quot;imageLink&quot;</span><span class="fu">:</span><span class="st">&quot;images/the-idiot.jpg&quot;</span><span class="fu">,</span><span class="dt">&quot;language&quot;</span><span class="fu">:</span><span class="st">&quot;Russian&quot;</span><span class="fu">,</span><span class="dt">&quot;link&quot;</span><span class="fu">:</span><span class="st">&quot;https://en.wikipedia.org/wiki/The_Idiot</span><span class="ch">\n</span><span class="st">&quot;</span><span class="fu">,</span><span class="dt">&quot;pages&quot;</span><span class="fu">:</span><span class="dv">656</span><span class="fu">,</span><span class="dt">&quot;title&quot;</span><span class="fu">:</span><span class="st">&quot;The Idiot&quot;</span><span class="fu">,</span><span class="dt">&quot;year&quot;</span><span class="fu">:</span><span class="dv">1869</span><span class="fu">}</span><span class="ot">]</span></a></code></pre></div>
+<p>We can execute jq passing the expression and the <code>book.json</code> file that we just created, with the following command:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"><span class="va">$jq</span> <span class="bu">.</span> <span class="ex">books.json</span></a></code></pre></div>
+<p>In this case, the dot does not stand for the current directory, but instead for the identity operator in jq. This call to the command is composed of three arguments, the name of the program, the jq expression and the file path. And it returns the same information but pretty-printed, and as you can see, it is a lot easier to visualize:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb4-1" title="1"><span class="ot">[</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="fu">{</span></a>
+<a class="sourceLine" id="cb4-3" title="3">    <span class="dt">&quot;author&quot;</span><span class="fu">:</span> <span class="st">&quot;Charles Dickens&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-4" title="4">    <span class="dt">&quot;country&quot;</span><span class="fu">:</span> <span class="st">&quot;United Kingdom&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-5" title="5">    <span class="dt">&quot;imageLink&quot;</span><span class="fu">:</span> <span class="st">&quot;images/great-expectations.jpg&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-6" title="6">    <span class="dt">&quot;language&quot;</span><span class="fu">:</span> <span class="st">&quot;English&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-7" title="7">    <span class="dt">&quot;link&quot;</span><span class="fu">:</span> <span class="st">&quot;https://en.wikipedia.org/wiki/Great_Expectations</span><span class="ch">\n</span><span class="st">&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-8" title="8">    <span class="dt">&quot;pages&quot;</span><span class="fu">:</span> <span class="dv">194</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-9" title="9">    <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Great Expectations&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-10" title="10">    <span class="dt">&quot;year&quot;</span><span class="fu">:</span> <span class="dv">1861</span></a>
+<a class="sourceLine" id="cb4-11" title="11">  <span class="fu">}</span><span class="ot">,</span></a>
+<a class="sourceLine" id="cb4-12" title="12">  <span class="fu">{</span></a>
+<a class="sourceLine" id="cb4-13" title="13">    <span class="dt">&quot;author&quot;</span><span class="fu">:</span> <span class="st">&quot;Denis Diderot&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-14" title="14">    <span class="dt">&quot;country&quot;</span><span class="fu">:</span> <span class="st">&quot;France&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-15" title="15">    <span class="dt">&quot;imageLink&quot;</span><span class="fu">:</span> <span class="st">&quot;images/jacques-the-fatalist.jpg&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-16" title="16">    <span class="dt">&quot;language&quot;</span><span class="fu">:</span> <span class="st">&quot;French&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-17" title="17">    <span class="dt">&quot;link&quot;</span><span class="fu">:</span> <span class="st">&quot;https://en.wikipedia.org/wiki/Jacques_the_Fatalist</span><span class="ch">\n</span><span class="st">&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-18" title="18">    <span class="dt">&quot;pages&quot;</span><span class="fu">:</span> <span class="dv">596</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-19" title="19">    <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Jacques the Fatalist&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-20" title="20">    <span class="dt">&quot;year&quot;</span><span class="fu">:</span> <span class="dv">1796</span></a>
+<a class="sourceLine" id="cb4-21" title="21">  <span class="fu">}</span><span class="ot">,</span></a>
+<a class="sourceLine" id="cb4-22" title="22">  <span class="fu">{</span></a>
+<a class="sourceLine" id="cb4-23" title="23">    <span class="dt">&quot;author&quot;</span><span class="fu">:</span> <span class="st">&quot;Alfred Döblin&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-24" title="24">    <span class="dt">&quot;country&quot;</span><span class="fu">:</span> <span class="st">&quot;Germany&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-25" title="25">    <span class="dt">&quot;imageLink&quot;</span><span class="fu">:</span> <span class="st">&quot;images/berlin-alexanderplatz.jpg&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-26" title="26">    <span class="dt">&quot;language&quot;</span><span class="fu">:</span> <span class="st">&quot;German&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-27" title="27">    <span class="dt">&quot;link&quot;</span><span class="fu">:</span> <span class="st">&quot;https://en.wikipedia.org/wiki/Berlin_Alexanderplatz</span><span class="ch">\n</span><span class="st">&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-28" title="28">    <span class="dt">&quot;pages&quot;</span><span class="fu">:</span> <span class="dv">600</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-29" title="29">    <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Berlin Alexanderplatz&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-30" title="30">    <span class="dt">&quot;year&quot;</span><span class="fu">:</span> <span class="dv">1929</span></a>
+<a class="sourceLine" id="cb4-31" title="31">  <span class="fu">}</span><span class="ot">,</span></a>
+<a class="sourceLine" id="cb4-32" title="32">  <span class="fu">{</span></a>
+<a class="sourceLine" id="cb4-33" title="33">    <span class="dt">&quot;author&quot;</span><span class="fu">:</span> <span class="st">&quot;Fyodor Dostoevsky&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-34" title="34">    <span class="dt">&quot;country&quot;</span><span class="fu">:</span> <span class="st">&quot;Russia&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-35" title="35">    <span class="dt">&quot;imageLink&quot;</span><span class="fu">:</span> <span class="st">&quot;images/crime-and-punishment.jpg&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-36" title="36">    <span class="dt">&quot;language&quot;</span><span class="fu">:</span> <span class="st">&quot;Russian&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-37" title="37">    <span class="dt">&quot;link&quot;</span><span class="fu">:</span> <span class="st">&quot;https://en.wikipedia.org/wiki/Crime_and_Punishment</span><span class="ch">\n</span><span class="st">&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-38" title="38">    <span class="dt">&quot;pages&quot;</span><span class="fu">:</span> <span class="dv">551</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-39" title="39">    <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Crime and Punishment&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-40" title="40">    <span class="dt">&quot;year&quot;</span><span class="fu">:</span> <span class="dv">1866</span></a>
+<a class="sourceLine" id="cb4-41" title="41">  <span class="fu">}</span><span class="ot">,</span></a>
+<a class="sourceLine" id="cb4-42" title="42">  <span class="fu">{</span></a>
+<a class="sourceLine" id="cb4-43" title="43">    <span class="dt">&quot;author&quot;</span><span class="fu">:</span> <span class="st">&quot;Fyodor Dostoevsky&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-44" title="44">    <span class="dt">&quot;country&quot;</span><span class="fu">:</span> <span class="st">&quot;Russia&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-45" title="45">    <span class="dt">&quot;imageLink&quot;</span><span class="fu">:</span> <span class="st">&quot;images/the-idiot.jpg&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-46" title="46">    <span class="dt">&quot;language&quot;</span><span class="fu">:</span> <span class="st">&quot;Russian&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-47" title="47">    <span class="dt">&quot;link&quot;</span><span class="fu">:</span> <span class="st">&quot;https://en.wikipedia.org/wiki/The_Idiot</span><span class="ch">\n</span><span class="st">&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-48" title="48">    <span class="dt">&quot;pages&quot;</span><span class="fu">:</span> <span class="dv">656</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-49" title="49">    <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;The Idiot&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb4-50" title="50">    <span class="dt">&quot;year&quot;</span><span class="fu">:</span> <span class="dv">1869</span></a>
+<a class="sourceLine" id="cb4-51" title="51">  <span class="fu">}</span></a>
+<a class="sourceLine" id="cb4-52" title="52"><span class="ot">]</span></a></code></pre></div>
+<p>Now, there are books for which the author is unknown. What we want to do in this first article on jq is to find all the books written by known authors, we can achieve that with the following expression (don’t worry, I’m going to dissect it in a moment):</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb5-1" title="1"><span class="va">$jq</span> <span class="st">&#39;[.[] | select(.author != &quot;Unknown&quot;)]&#39;</span> <span class="ex">books.json</span></a></code></pre></div>
+<p>This command returns the following output:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb6-1" title="1"><span class="ot">[</span></a>
+<a class="sourceLine" id="cb6-2" title="2">  <span class="fu">{</span></a>
+<a class="sourceLine" id="cb6-3" title="3">    <span class="dt">&quot;author&quot;</span><span class="fu">:</span> <span class="st">&quot;Charles Dickens&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-4" title="4">    <span class="dt">&quot;country&quot;</span><span class="fu">:</span> <span class="st">&quot;United Kingdom&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-5" title="5">    <span class="dt">&quot;imageLink&quot;</span><span class="fu">:</span> <span class="st">&quot;images/great-expectations.jpg&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-6" title="6">    <span class="dt">&quot;language&quot;</span><span class="fu">:</span> <span class="st">&quot;English&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-7" title="7">    <span class="dt">&quot;link&quot;</span><span class="fu">:</span> <span class="st">&quot;https://en.wikipedia.org/wiki/Great_Expectations</span><span class="ch">\n</span><span class="st">&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-8" title="8">    <span class="dt">&quot;pages&quot;</span><span class="fu">:</span> <span class="dv">194</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-9" title="9">    <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Great Expectations&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-10" title="10">    <span class="dt">&quot;year&quot;</span><span class="fu">:</span> <span class="dv">1861</span></a>
+<a class="sourceLine" id="cb6-11" title="11">  <span class="fu">}</span><span class="ot">,</span></a>
+<a class="sourceLine" id="cb6-12" title="12">  <span class="fu">{</span></a>
+<a class="sourceLine" id="cb6-13" title="13">    <span class="dt">&quot;author&quot;</span><span class="fu">:</span> <span class="st">&quot;Denis Diderot&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-14" title="14">    <span class="dt">&quot;country&quot;</span><span class="fu">:</span> <span class="st">&quot;France&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-15" title="15">    <span class="dt">&quot;imageLink&quot;</span><span class="fu">:</span> <span class="st">&quot;images/jacques-the-fatalist.jpg&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-16" title="16">    <span class="dt">&quot;language&quot;</span><span class="fu">:</span> <span class="st">&quot;French&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-17" title="17">    <span class="dt">&quot;link&quot;</span><span class="fu">:</span> <span class="st">&quot;https://en.wikipedia.org/wiki/Jacques_the_Fatalist</span><span class="ch">\n</span><span class="st">&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-18" title="18">    <span class="dt">&quot;pages&quot;</span><span class="fu">:</span> <span class="dv">596</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-19" title="19">    <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Jacques the Fatalist&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-20" title="20">    <span class="dt">&quot;year&quot;</span><span class="fu">:</span> <span class="dv">1796</span></a>
+<a class="sourceLine" id="cb6-21" title="21">  <span class="fu">}</span><span class="ot">,</span></a>
+<a class="sourceLine" id="cb6-22" title="22">  <span class="fu">{</span></a>
+<a class="sourceLine" id="cb6-23" title="23">    <span class="dt">&quot;author&quot;</span><span class="fu">:</span> <span class="st">&quot;Alfred Döblin&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-24" title="24">    <span class="dt">&quot;country&quot;</span><span class="fu">:</span> <span class="st">&quot;Germany&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-25" title="25">    <span class="dt">&quot;imageLink&quot;</span><span class="fu">:</span> <span class="st">&quot;images/berlin-alexanderplatz.jpg&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-26" title="26">    <span class="dt">&quot;language&quot;</span><span class="fu">:</span> <span class="st">&quot;German&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-27" title="27">    <span class="dt">&quot;link&quot;</span><span class="fu">:</span> <span class="st">&quot;https://en.wikipedia.org/wiki/Berlin_Alexanderplatz</span><span class="ch">\n</span><span class="st">&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-28" title="28">    <span class="dt">&quot;pages&quot;</span><span class="fu">:</span> <span class="dv">600</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-29" title="29">    <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Berlin Alexanderplatz&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-30" title="30">    <span class="dt">&quot;year&quot;</span><span class="fu">:</span> <span class="dv">1929</span></a>
+<a class="sourceLine" id="cb6-31" title="31">  <span class="fu">}</span><span class="ot">,</span></a>
+<a class="sourceLine" id="cb6-32" title="32">  <span class="fu">{</span></a>
+<a class="sourceLine" id="cb6-33" title="33">    <span class="dt">&quot;author&quot;</span><span class="fu">:</span> <span class="st">&quot;Fyodor Dostoevsky&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-34" title="34">    <span class="dt">&quot;country&quot;</span><span class="fu">:</span> <span class="st">&quot;Russia&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-35" title="35">    <span class="dt">&quot;imageLink&quot;</span><span class="fu">:</span> <span class="st">&quot;images/crime-and-punishment.jpg&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-36" title="36">    <span class="dt">&quot;language&quot;</span><span class="fu">:</span> <span class="st">&quot;Russian&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-37" title="37">    <span class="dt">&quot;link&quot;</span><span class="fu">:</span> <span class="st">&quot;https://en.wikipedia.org/wiki/Crime_and_Punishment</span><span class="ch">\n</span><span class="st">&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-38" title="38">    <span class="dt">&quot;pages&quot;</span><span class="fu">:</span> <span class="dv">551</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-39" title="39">    <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Crime and Punishment&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-40" title="40">    <span class="dt">&quot;year&quot;</span><span class="fu">:</span> <span class="dv">1866</span></a>
+<a class="sourceLine" id="cb6-41" title="41">  <span class="fu">}</span><span class="ot">,</span></a>
+<a class="sourceLine" id="cb6-42" title="42">  <span class="fu">{</span></a>
+<a class="sourceLine" id="cb6-43" title="43">    <span class="dt">&quot;author&quot;</span><span class="fu">:</span> <span class="st">&quot;Fyodor Dostoevsky&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-44" title="44">    <span class="dt">&quot;country&quot;</span><span class="fu">:</span> <span class="st">&quot;Russia&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-45" title="45">    <span class="dt">&quot;imageLink&quot;</span><span class="fu">:</span> <span class="st">&quot;images/the-idiot.jpg&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-46" title="46">    <span class="dt">&quot;language&quot;</span><span class="fu">:</span> <span class="st">&quot;Russian&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-47" title="47">    <span class="dt">&quot;link&quot;</span><span class="fu">:</span> <span class="st">&quot;https://en.wikipedia.org/wiki/The_Idiot</span><span class="ch">\n</span><span class="st">&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-48" title="48">    <span class="dt">&quot;pages&quot;</span><span class="fu">:</span> <span class="dv">656</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-49" title="49">    <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;The Idiot&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb6-50" title="50">    <span class="dt">&quot;year&quot;</span><span class="fu">:</span> <span class="dv">1869</span></a>
+<a class="sourceLine" id="cb6-51" title="51">  <span class="fu">}</span></a>
+<a class="sourceLine" id="cb6-52" title="52"><span class="ot">]</span></a></code></pre></div>
+<p>As you can see, all the books written by unknown authors have been excluded from the object. The following expression is the one we’ve used to generate the output above: <code>[.[] | select(.author != "Unknown")]</code>. Decomposing it, we get the following items:</p>
+<ul>
+<li><code>.[]</code> (Array/Object Value Iterator): The meaning of this expressions depends on the entity we are decomposing. If we are applying it on an array, it returns all the items in the array, so that we can pipe them into a new expression individually. If we are applying it on an object, it returns all the values of the object. Again, in this case, we can pipe the values into new expressions and they will be executed individually.</li>
+<li><code>|</code> (Pipe): This expression takes the output of the previous subexpression and feeds it to the next, for example, <code>.a | .b</code> means, “Read the field <code>a</code> from an object, then, use the output of that expression and read the field <code>b</code> from it.”</li>
+<li><code>select(filter)</code> (Select Expression): It takes an iterator and aaplies the filter on each one of the results, returning only the records for which the filter evaluates to true.</li>
+<li><code>[expression]</code> (Array Builder): It takes the expression, and builds an array around it. For example, <code>[1, 2, 3]</code> will create a new array with <code>1</code>, <code>2</code> and <code>3</code> as values, in that order.</li>
+</ul>
+<p>Now, we can analyze our original expression: <code>[.[] | select(.author != "Unknown)]</code>. What we are doing here is to iterate over the books, we feed that output to the select expression, selecting only those books for which the author is not “Unknown”, and since our response is a set of values without any relation, we need to collect them to build an array.</p>
+<p>An important thing to keep in mind is that the output produced by that expression can be used in further manipulations. So once we have filtered the list, we can change the representation of the objects, apply new filters for different params or slice it. To avoid making this post too long, I’ll be dividing it in several parts, trying to cover specific features that I haven’t covered yet. Indeed, I think I’d be a good idea to start a series of articles on <code>jq</code>. Since the purpose of the series on domain specific languages is to present them and know how they can be used instead of diving too deep.</p>
+<p>As you can see, after you have decomposed the expression it turns out to pretty easy to read, and it demonstrates how with an one-liner we can parse the object and apply filters on lists. The more you practice, the easier it will be to read and write <code>jq</code> expressions. If you want to know more about it, you can take a look at the <a href="https://stedolan.github.io/jq/manual">documentation</a> and check the examples. I encourage you to execute these commands in your command line and to experiment with this interesting tool, so that you can develop a deeper insight and become more proficient with it.</p>
+				</div>
+			</div>
+		</div>
+		<div class="footer"><span class="copyright">Albert J. Williams, 2023</span></div>
+	</div>
+</body>
+</html>
+
